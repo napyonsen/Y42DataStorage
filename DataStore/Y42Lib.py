@@ -8,7 +8,7 @@
 
 "No perfromance consideration is made here. No caching is done. A real implementation would do that"
 
-"We could implement a syncronization decorator here. Although it makes code shorter, it breaks dowwn the simplicity principle."
+"Note that we could implement a syncronization decorator here."
 
 from threading import Lock
 
@@ -19,41 +19,38 @@ class DsLib:
         self.lock = Lock()
 
     def _readAll(self):
+        self.lock.acquire()
         rawdata = self.storageObj.Load()
         data = self.formatterObj.Decode(rawdata)
+        self.lock.release()
         return data
 
     def _writeAll(self,data):
+        self.lock.acquire()
         rawdata = self.formatterObj.Encode(data)
         self.storageObj.Save(rawdata)
+        self.lock.release()
 
     def Insert(self,record):
-        self.lock.acquire()
         data = self._readAll()
         data[record[0]] = record[1]
         self._writeAll(data)
-        self.lock.release()
+        
 
     def BatchInsert(self,records):
-        self.lock.acquire()
         data = self._readAll()
 
         for record in records:
             data[record[0]] = record[1]
         
         self._writeAll(data)
-        self.lock.release()
 
     def DoesExist(self,key):
-        self.lock.acquire()
         data = self._readAll()
-        self.lock.release()
         return key in data
 
     def GetRecord(self,key):
-        self.lock.acquire()
         data = self._readAll()
-        self.lock.release()
         if key in data: return data[key]
         else: return None
         
@@ -61,8 +58,16 @@ class DsLib:
         self.Insert(record)
 
     def DeleteRecord(self,key):
-        self.lock.acquire()
         data = self._readAll()
-        del data[key]
+        if key in data: del data[key]
         self._writeAll(data)
-        self.lock.release()
+
+    def Query(self,query, offset = 0, limit = 100):
+        data = self._readAll()
+        res = [(k,v) for k, v in data.items() if  v == query]
+        n = len(res)
+        if offset >= n: return []
+        if offset + limit >= n: return res[offset:]
+
+        return res[offset:offset+limit]
+

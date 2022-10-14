@@ -8,4 +8,6 @@ library. In order this class to be work properly, this objects must be supplied 
 
 We have utilized aggreagtion method here. Dslib class aggregates its formatter and storager objects and delegates this tasks to them.
 Note that since python is Duck typed, we do not need to define a common base class for formatter objects neither for storage objects
-to implement the polimorphic behavior here. 
+to implement the polimorphic behavior here. It we had used typed OOP language, our class constructor would accept interface to Storager and Formatter (or abstract base class in C++, protocol in swift) and our concerete classes would inherit from this interfaces.
+
+![Uml diagram](uml.pdf)

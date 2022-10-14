@@ -9,4 +9,7 @@ class DiskStorageCls:
 
     def Load (self):
         with open("y42.data", "r") as f:
-            return f.read()
+            data = f.read()
+            if not data:
+                return "{}"
+            return data
